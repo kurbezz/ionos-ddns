@@ -9,11 +9,7 @@ use config::CONFIG;
 use ip_getter::get_ip_string;
 
 
-async fn update() {
-    let current_ip = get_ip_string()
-        .await
-        .unwrap_or_else(|err| panic!("Can't get current ip! Err: {}", err));
-
+async fn update(current_ip: String) {
     let zones = get_zones()
         .await
         .unwrap_or_else(
@@ -82,9 +78,19 @@ async fn update() {
 async fn main() {
     let mut interval = time::interval(Duration::from_secs(CONFIG.check_interval_seconds));
 
+    let mut prev_ip: String = "".to_string();
+
     loop {
-        update().await;
-        println!("Updated!");
+        let current_ip = get_ip_string()
+            .await
+            .unwrap_or_else(|err| panic!("Can't get current ip! Err: {}", err));
+
+        if current_ip.eq(&prev_ip) {
+            prev_ip = current_ip.clone();
+
+            update(current_ip).await;
+            println!("Updated!");
+        }
 
         interval.tick().await;
     }
