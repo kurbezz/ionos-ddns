@@ -85,7 +85,7 @@ async fn main() {
             .await
             .unwrap_or_else(|err| panic!("Can't get current ip! Err: {}", err));
 
-        if current_ip.eq(&prev_ip) {
+        if !current_ip.eq(&prev_ip) {
             prev_ip = current_ip.clone();
 
             update(current_ip).await;
