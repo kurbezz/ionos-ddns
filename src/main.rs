@@ -81,9 +81,13 @@ async fn main() {
     let mut prev_ip: String = "".to_string();
 
     loop {
-        let current_ip = get_ip_string()
-            .await
-            .unwrap_or_else(|err| panic!("Can't get current ip! Err: {}", err));
+        let current_ip = match get_ip_string().await {
+            Ok(v) => v,
+            Err(err) => {
+                eprintln!("Can't get ip! Err: {}", err);
+                continue;
+            }
+        };
 
         if !current_ip.eq(&prev_ip) {
             prev_ip = current_ip.clone();
